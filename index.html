@@ -1,0 +1,246 @@
+<!doctype html>
+<html>
+<head>
+    <title>Itero.JS Sample</title>
+    <!-- This sample uses angularjs and bootstrap, but you don't have to -- itero.js has no external dependencies, except 
+    for certain payment providers. It will load those files asynchronously and only if needed. -->
+    <link rel="stylesheet" href="styles/bootstrap.min.css" />
+    <link rel="stylesheet" href="styles/iterojs.css" />
+    <script type="text/javascript" src="lib/ba-debug.min.js"></script>
+</head>
+<body data-ng-app="iteroAngular" id="ng-app">
+    <!-- This is the template for the custom 3D-Secure popup we're using
+         TODO: This isn't really responsive -->
+    <script type="text/ng-template" id="3ds-modal.html">
+        <div style="width: 600px; background: #fff;">
+        <div class="modal-header">
+            <button type="button" class="close"  data-ng-click="cancel()" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">3D Secure Check</h4>
+          </div>
+          <div class="modal-body">
+            <p>This is a customized 3D-Secure check modal dialog!</p>
+                <iframe 3ds-modal url="{{url}}" params="{{params}}" width="560" height="350" seamless="seamless"></iframe>
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-ng-click="cancel()" class="btn">Cancel</button>
+          </div>
+          </div>
+    </script> 
+
+    <div class="container" data-ng-controller="SignupController">
+    <div class="alert alert-danger">
+        <h4>Buckle Up!</h4>
+        This is <strong>alpha</strong> software to gather feedback on IteroJS, not for production yet!
+    </div>
+    <div data-ng-show="isSuccess" style="text-align: center;" data-ng-cloak>
+        <h1>Signup Successful!</h1>
+        <p>Thanks for signing up!</p>
+    </div>
+    <div data-ng-show="signupRunning"  class="text-center" style="font-size: 36px; padding: 50px;"  data-ng-cloak>
+        <div class="loading"></div>Please Wait&hellip;
+    </div>
+    <div data-ng-hide="isSuccess || signupRunning"  data-ng-cloak>
+        <div>
+            <h1>Sign Up</h1>
+            <p class="lead">
+                This is an <a href="http://developer.pactas.com/Docs/IteroJS">IteroJS</a> sample signup form using 
+                <a href="http://angularjs.org">AngularJS</a>, <a href="http://getbootstrap.com">Bootstrap3</a> and 
+                <a href="http://angular-ui.github.io">Angular-UI</a>.
+            </p>
+            <div class="clearfix"></div>
+
+            <!-- As long as IteroJS hasn't fully loaded, we'll hide the signup form because we don't have a list of
+                 components and a price, nor do we know which payment  input fields to show yet.
+                 HEADS UP: We might provide a hook that informs you as soon as the initial order was processed, even if 
+                 the payment information is still pending.
+            -->
+            <div data-ng-show="!paymentReady"  class="text-center" style="font-size: 36px; padding: 50px;"  data-ng-cloak>
+                <div class="loading"></div>Loading&hellip;
+            </div>
+            <div data-ng-show="paymentReady" class="table-responsive ng-cloak">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th class="text-right">Price</th>
+                        <th class="text-right">Quantity</th>
+                        <th class="text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{order.RecurringFee.Name}}</td>
+                    <td class="text-right">{{order.RecurringFee.PricePerUnit | number:2}}</td>
+                    <td class="text-right">{{order.RecurringFee.Quantity}}</td>
+                    <td class="text-right">{{order.RecurringFee.TotalNet + order.RecurringFee.TotalVat  | number:2}}</td>
+                </tr>
+                <tr data-ng-repeat="component in order.Components">
+                    <td>{{component.Name}}</td>
+                    <td class="text-right">{{component.PricePerUnit | number:2}}</td>
+                    <td class="text-right"><input type="number" class="text-right" style="width: 60px;" data-ng-change="preview()" data-ng-model="component.Quantity" /></td>
+                    <td class="text-right">{{component.TotalNet + component.TotalVat  | number:2}}</td>
+                </tr>
+                <tr>
+                    <td class="text-right" colspan="3">TOTAL</td>
+                    <td class="text-right">{{order.Currency}} {{order.Total | number:2}}</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <!-- note that the form doesn't have an action attribute. instead, signUp() will be called, which in turn delegates
+                 the signup to iterojs. The missing action attribute helps to ensure credit card data won't be sent to your server
+                 accidentally. -->
+            <form data-ng-show="paymentReady" novalidate data-ng-submit="signUp()" role="form">
+            <h4>Personal Data</h4>
+            <div class="row">
+                <div class="form-group col-xs-12 col-sm-4">
+                    <label for="firstName" class="sr-only control-label">First Name</label>
+                    <input data-ng-model="customerData.firstName" required type="text" class="form-control" name="firstName" id="firstName" placeholder="First Name" />
+                </div>
+
+                <div class="form-group col-xs-12 col-sm-4">
+                    <label for="lastName" class="sr-only control-label">Last Name</label>
+                    <input data-ng-model="customerData.lastName" required type="text" class="form-control" name="lastName" id="lastName" placeholder="Last Name" />
+                </div>
+
+                <div class="form-group col-xs-12 col-sm-4">
+                    <label for="email" class="sr-only control-label">Email</label>
+                    <input data-ng-model="customerData.email" required  type="email" class="form-control" name="email" id="email" placeholder="Email" />
+                </div>
+            </div>
+
+            <h4>Payment Information</h4>
+            <div class="form-group">
+                <select class="form-control" data-ng-model="paymentData.bearer">
+                    <option data-ng-repeat="pm in paymentMethodEnum" value="{{pm}}">{{paymentMethodNames[pm]}}</option>
+                </select>
+            </div>
+
+            <!-- The abstraction of payment methods starts to leak here (hardcoded strings). We'll improve this soon, 
+                 but of course a direct debit form is different from a credit card form -->
+            <div class="payment-elv" data-ng-show="paymentData.bearer=='Debit:Paymill'">
+                <div class="row">
+                    <div class="form-group col-sm-12">
+                        <label for="accountHolder" class="sr-only control-label">Account Holder</label>
+                        <input data-ng-model="paymentData.accountHolder" required id="accountHolder" name="accountHolder" type="text" class="form-control" placeholder="Account Holder" />
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label for="accountNumber" class="sr-only control-label">Account Number</label>
+                        <input data-ng-model="paymentData.bankAccountNumber" required id="accountNumber" name="accountNumber"  maxlength="10"  type="text" class="form-control" placeholder="Account Number" />
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label for="bankRoutingCode" class="sr-only control-label">Bank Routing Code</label>
+                        <input data-ng-model="paymentData.bankRoutingCode" required id="bankRoutingCode" name="bankRoutingCode" maxlength="8" type="text" class="form-control" placeholder="Bank Routing Code" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-cc" data-ng-show="paymentData.bearer=='CreditCard:Paymill'">
+                <div class="row">
+                    <!-- Note that the input fields don't have a 'name' set, rendering it impossible for the browser 
+                         to post these fields even if something went wrong in our first line of defense of not having
+                         an action on the form. -->
+                    <div class="form-group col-sm-12">
+                        <label for="email" class="sr-only control-label">Card Holder</label>
+                        <input data-ng-model="paymentData.cardHolder" required type="text" class="form-control" id="cardholder" placeholder="Card Holder" />
+                    </div>
+
+                    <div class="form-group col-xs-8 col-sm-4">  
+                        <label for="ccno" class="sr-only control-label">Credit Card Number</label>
+                        <input data-ng-model="paymentData.cardNumber" required maxlength="16" type="text" class="form-control" id="ccno" placeholder="Credit Card Number" />
+                    </div>
+
+                    <div class="form-group col-xs-4 col-sm-2">
+                        <label for="cvc" class="sr-only control-label">CVC</label>
+                        <input data-ng-model="paymentData.cvc" maxlength="3" required type="text" class="form-control" id="cvc" placeholder="CVC" />
+                    </div>
+                
+                    <div class="col-xs-4 col-sm-2">
+                        <label class="col-sm-2 control-label">Valid Through</label>
+                    </div>
+
+                    <div class="col-xs-4 col-sm-2">
+                        <label for="expiryMonth" class="sr-only control-label">Expiry Month</label>
+                        <select data-ng-model="paymentData.expiryMonth" class="form-control col-lg-4" id="expiryMonth">
+                            <option value="" disabled selected>MM</option>
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                    </div>
+
+                    <div class="col-xs-4 col-sm-2">
+                        <label for="expiryYear" class="sr-only control-label">Expiry Year</label>
+                        <select data-ng-model="paymentData.expiryYear" class="form-control" id="expiryYear">
+                            <option value="" disabled selected>YYYY</option>
+                            <option value="2013">2013</option>
+                            <option value="2014">2014</option>
+                            <option value="2015">2015</option>
+                            <option value="2016">2016</option>
+                            <option value="2017">2017</option>
+                            <option value="2018">2018</option>
+                            <option value="2019">2019</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+            <div class="form-group">
+                <div class="row">
+                <div class="col-sm-2">
+                    <button type="submit" data-ng-disabled="!paymentReady || !order || signupRunning" class="btn btn-lg btn-success">Sign Up</button>
+                </div>
+                <div class="col-sm-6" style="padding: 12px;" data-ng-show="signupRunning">
+                <div style="width:25px; height:25px; display: inline-block; background: transparent url('spinner25.gif')";></div> 
+                <span style="line-height: 25px;">processing order, please wait...</span></div>
+                </div>
+            </div>
+
+            <div class="clearfix"></div>
+            </form>
+
+            <div class="form-group">
+                <span style="float: right;">
+                    <input type="checkbox" data-ng-model="developerMode" /> show developer info
+                </span>
+                <div class="clearfix"></div>
+            </div>
+
+            <div data-ng-show="developerMode" class="ng-cloak">
+                paymentData:
+                <pre>{{paymentData | json}}</pre>
+                customerData:
+                <pre>{{customerData | json}}</pre>
+                paymentMethods:
+                <pre>{{paymentMethods | json}}</pre>
+                order:
+                <pre>{{order | json}}</pre>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2013 Pactas GmbH, Frankfurt am Main</p>
+            </div>
+    </div>
+    <!-- /container -->
+    </div>
+    </div>
+
+    <script type="text/javascript" src="http://itero.demo.pactas.com/itero.min.js"></script>
+    <script type="text/javascript" src="lib/angular.min.js"></script>
+    <script type="text/javascript" src="lib/angular-ui-modal.js"></script>
+    <script type="text/javascript" src="itero-sample.js"></script>
+</body>
+</html>
