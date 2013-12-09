@@ -106,11 +106,9 @@ var SignupController = function ($scope, $http, $modal) {
 
     var config = {
         // REQUIRED. Id of the calling entity
-        // TODO: Use a key instead that can be changed
-        "entityId": "529f114351f459f55874f79b",
+        "appId": "52a5fbe251f459c66854e310",
 
         // REQUIRED. The initial order to be displayed. This will be requested immediately upon load
-        // HEADS UP: The 
         "initialOrder": { planVariantId: "529f20ed51f4591c2000e946", components: [{ "id": "529f209b51f4591c2000e942", "Quantity": 1}] },
 
         // OPTIONAL. Overwrite the handling of the 3d-secure iframes. Comment out these 

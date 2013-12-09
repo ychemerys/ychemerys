@@ -1,25 +1,11 @@
 body { padding-top: 20px; padding-bottom: 20px; }
-.loading { background: url('spinner80.gif'); width: 80px; height: 80px; display: inline-block; vertical-align: middle; margin: 10px 20px 10px 0; }
-.header, .footer { padding-left: 15px; padding-right: 15px; }
-.heade { border-bottom: 1px solid #e5e5e5; }
-        
-/* Custom page footer */
-.footer { padding-top: 19px; color: #777; border-top: 1px solid #e5e5e5; }
-        
-/* Customize container */
-@media (min-width: 768px)
-{
-    .container
-    {
-        max-width: 738px;
-    }
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
 }
 
-@media screen and (min-width: 768px)
-{
-    .header, .footer
-    {
-        padding-left: 0;
-        padding-right: 0;
-    }
-}
+.loading { background: url('spinner80.gif'); width: 80px; height: 80px; display: inline-block; vertical-align: middle; margin: 10px 20px 10px 0; }
+.header, .footer { padding-left: 15px; padding-right: 15px; }
+.header { border-bottom: 1px solid #e5e5e5; }
+.footer { padding-top: 19px; color: #777; border-top: 1px solid #e5e5e5; }
+.modal-dialog { max-width: 40em; }

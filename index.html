@@ -4,7 +4,8 @@
     <title>Itero.JS Sample</title>
     <!-- This sample uses angularjs and bootstrap, but you don't have to -- itero.js has no external dependencies, except 
     for certain payment providers. It will load those files asynchronously and only if needed. -->
-    <link rel="stylesheet" href="styles/bootstrap.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="styles/bootstrap.css" />
     <link rel="stylesheet" href="styles/iterojs.css" />
     <script type="text/javascript" src="lib/ba-debug.min.js"></script>
 </head>
@@ -12,21 +13,19 @@
     <!-- This is the template for the custom 3D-Secure popup we're using
          TODO: This isn't really responsive -->
     <script type="text/ng-template" id="3ds-modal.html">
-        <div style="width: 600px; background: #fff;">
         <div class="modal-header">
             <button type="button" class="close"  data-ng-click="cancel()" aria-hidden="true">&times;</button>
             <h4 class="modal-title">3D Secure Check</h4>
           </div>
           <div class="modal-body">
             <p>This is a customized 3D-Secure check modal dialog!</p>
-                <iframe 3ds-modal url="{{url}}" params="{{params}}" width="560" height="350" seamless="seamless"></iframe>
+            <iframe 3ds-modal url="{{url}}" params="{{params}}" style="width: 100%;" height="350" seamless="seamless"></iframe>
           </div>
           <div class="modal-footer">
             <button type="button" data-ng-click="cancel()" class="btn">Cancel</button>
           </div>
-          </div>
     </script> 
-
+    
     <div class="container" data-ng-controller="SignupController">
     <div class="alert alert-danger">
         <h4>Buckle Up!</h4>
@@ -185,13 +184,13 @@
                         <label for="expiryYear" class="sr-only control-label">Expiry Year</label>
                         <select data-ng-model="paymentData.expiryYear" class="form-control" id="expiryYear">
                             <option value="" disabled selected>YYYY</option>
-                            <option value="2013">2013</option>
                             <option value="2014">2014</option>
                             <option value="2015">2015</option>
                             <option value="2016">2016</option>
                             <option value="2017">2017</option>
                             <option value="2018">2018</option>
                             <option value="2019">2019</option>
+                            <option value="2019">2020</option>
                         </select>
                     </div>
                 </div>
