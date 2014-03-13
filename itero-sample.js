@@ -30,7 +30,7 @@ var SignupController = function ($scope, $http, $modal) {
         $scope.signupRunning = true;
         // pass the order, customerData and payment data to IteroJS
         // DTO: PaymentData
-        self.iteroInstance.subscribe($scope.order, $scope.customerData, $scope.paymentData, function (data) {
+        self.iteroInstance.subscribe(self.iteroJSPayment, $scope.order, $scope.customerData, $scope.paymentData, function (data) {
             // This callback will be invoked when the signup succeeded (or failed)
             // Note that the callback must use $apply, otherwise angularjs won't notice we changed something:
             $scope.$apply(function () {
@@ -46,7 +46,7 @@ var SignupController = function ($scope, $http, $modal) {
                         window.location = data.Success.Url; // redirect required, e.g. paypal, skrill
                 }
             });
-        });
+        }, function (error) { alert("an error occurred during signup!"); console.log(error); });
     };
 
     $scope.preview = function () {
@@ -104,12 +104,9 @@ var SignupController = function ($scope, $http, $modal) {
         modalInstance.close('external cleanup');
     };
 
-    var config = {
-        // REQUIRED. Id of the calling entity
-        "appId": "52a5fbe251f459c66854e310",
-
+    var paymentConfig = {
         // REQUIRED. The initial order to be displayed. This will be requested immediately upon load
-        "initialOrder": { planVariantId: "529f20ed51f4591c2000e946", components: [{ "id": "529f209b51f4591c2000e942", "Quantity": 1}] },
+        publicApiKey: "529f114351f459f55874f79b",
 
         // OPTIONAL. Overwrite the handling of the 3d-secure iframes. Comment out these 
         // two lines to see what happens without (essentially the same, but not customizable).
@@ -118,15 +115,28 @@ var SignupController = function ($scope, $http, $modal) {
         "popupClose": tdsCleanup
     };
 
-    self.iteroInstance = new Itero(config, function () {
+    self.iteroJSPayment = new IteroJS.Payment(paymentConfig, function () {
         $scope.$apply(function () {
             // When IteroJS is ready, copy the payment methods and initial order
             $scope.paymentReady = true;
-            $scope.paymentMethods = self.iteroInstance.paymentMethods;
-            $scope.paymentMethodEnum = self.iteroInstance.paymentMethodEnum;
+            $scope.paymentMethods = self.iteroJSPayment.getAvailablePaymentMethods();
+            $scope.paymentMethodEnum = self.iteroJSPayment.getAvailablePaymentMethodEnum();
             $scope.paymentData.bearer = $scope.paymentMethodEnum[0];
-            $scope.order = self.iteroInstance.quote.Order;
         });
+    }, function (errorData) {
+        alert("error initializing payment!");
+        console.log(errorData);
+    });
+
+    var initialCart = { planVariantId: "529f20ed51f4591c2000e946", components: [{ "id": "529f209b51f4591c2000e942", "Quantity": 1}] };
+    self.iteroInstance = new IteroJS.Signup();
+    self.iteroInstance.preview(initialCart, $scope.customerData, function (success) {
+        console.log("preview returned", success);
+        $scope.$apply(function () {
+            $scope.order = success.Order;
+        });
+    }, function (error) {
+        alert("an error occured!"); console.log(error);
     });
 };
 
