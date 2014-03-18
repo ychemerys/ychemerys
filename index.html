@@ -10,6 +10,7 @@
     <script type="text/javascript" src="lib/ba-debug.min.js"></script>
 </head>
 <body data-ng-app="iteroAngular" id="ng-app">
+    <img style="position: fixed; top: 0; right: 0; border: 0; z-index: 200;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub">
     <!-- This is the template for the custom 3D-Secure popup we're using
          TODO: This isn't really responsive -->
     <script type="text/ng-template" id="3ds-modal.html">
@@ -27,10 +28,6 @@
     </script> 
     
     <div class="container" data-ng-controller="SignupController">
-    <div class="alert alert-danger">
-        <h4>Buckle Up!</h4>
-        This is <strong>alpha</strong> software to gather feedback on IteroJS, not for production yet!
-    </div>
     <div data-ng-show="isSuccess" style="text-align: center;" data-ng-cloak>
         <h1>Signup Successful!</h1>
         <p>Thanks for signing up!</p>
@@ -190,7 +187,9 @@
                             <option value="2017">2017</option>
                             <option value="2018">2018</option>
                             <option value="2019">2019</option>
-                            <option value="2019">2020</option>
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
                         </select>
                     </div>
                 </div>
@@ -230,7 +229,7 @@
             </div>
 
             <div class="footer">
-                <p>&copy; 2013 Pactas GmbH, Frankfurt am Main</p>
+                <p>&copy; 2014 Pactas GmbH, Frankfurt am Main</p>
             </div>
     </div>
     <!-- /container -->

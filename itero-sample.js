@@ -15,7 +15,7 @@ var SignupController = function ($scope, $http, $modal) {
     $scope.order = null;
     // Some default data so we don't have to enter a ton of info every time
     $scope.customerData = { firstName: "Marcellus", lastName: "Wallace", email: "mw@example.com" };
-    $scope.paymentData = { bearer: "CreditCard:Paymill", "cardNumber": "5169147129584558", cardHolder: "Marcellus Wallace", cvc: "911", expiryMonth: "12", expiryYear: "2015" };
+    $scope.paymentData = { bearer: "CreditCard:Paymill", "cardNumber": "5169147129584558", cardHolder: "Marcellus Wallace", cvc: "911", expiryMonth: "12", expiryYear: "2017" };
     $scope.paymentMethods = {};
     $scope.paymentMethodEnum = [];
     $scope.paymentReady = false;
@@ -35,16 +35,10 @@ var SignupController = function ($scope, $http, $modal) {
             // Note that the callback must use $apply, otherwise angularjs won't notice we changed something:
             $scope.$apply(function () {
                 $scope.signupRunning = false;
-                if (data.Error) {
-                    // TODO: Error handling! 
-                    debug.error("error: ", data.Error);
-                }
-                else if (data.Success) {
-                    if (!data.Success.Url)
-                        $scope.isSuccess = true; //done
-                    else
-                        window.location = data.Success.Url; // redirect required, e.g. paypal, skrill
-                }
+                if (!data.Url)
+                    $scope.isSuccess = true; //done
+                else
+                    window.location = data.Url; // redirect required, e.g. paypal, skrill
             });
         }, function (error) { alert("an error occurred during signup!"); console.log(error); });
     };
@@ -131,7 +125,6 @@ var SignupController = function ($scope, $http, $modal) {
     var initialCart = { planVariantId: "529f20ed51f4591c2000e946", components: [{ "id": "529f209b51f4591c2000e942", "Quantity": 1}] };
     self.iteroInstance = new IteroJS.Signup();
     self.iteroInstance.preview(initialCart, $scope.customerData, function (success) {
-        console.log("preview returned", success);
         $scope.$apply(function () {
             $scope.order = success.Order;
         });

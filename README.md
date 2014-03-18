@@ -1,7 +1,6 @@
 iterojs
 =======
 
-This is a sample for iterojs, the upcoming release of Pactas Itero.
-
-Please note that this is still a tech preview and doesn't even use an SSL-encrypted instance of itero over at http://itero.demo.pactas.com/
+This is a sample signup page built with AngularJS and [Pactas' JS SDK, IteroJS](http://developer.pactas.com/Docs/IteroJS). It is currently 
+coded to use a non-SSL demo instance of itero over at http://itero.demo.pactas.com/.
 
