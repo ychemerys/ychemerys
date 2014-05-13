@@ -78,7 +78,7 @@
                 </tr>
                 <tr>
                     <td class="text-right" colspan="3">TOTAL</td>
-                    <td class="text-right">{{order.Currency}} {{order.Total | number:2}}</td>
+                    <td class="text-right">{{order.Currency}} {{order.Total + order.TotalVat | number:2}}</td>
                 </tr>
                 </tbody>
             </table>
