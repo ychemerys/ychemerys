@@ -70,7 +70,7 @@
                     <td class="text-right">{{order.RecurringFee.Quantity}}</td>
                     <td class="text-right">{{order.RecurringFee.TotalNet + order.RecurringFee.TotalVat  | number:2}}</td>
                 </tr>
-                <tr data-ng-repeat="component in order.Components">
+                <tr data-ng-repeat="component in order.ComponentSubscriptions">
                     <td>{{component.Name}}</td>
                     <td class="text-right">{{component.PricePerUnit | number:2}}</td>
                     <td class="text-right"><input type="number" class="text-right" style="width: 60px;" data-ng-change="preview()" data-ng-model="component.Quantity" /></td>
@@ -236,7 +236,7 @@
     </div>
     </div>
 
-    <script type="text/javascript" src="http://itero.demo.pactas.com/selfService/iterojs"></script>
+    <script type="text/javascript" src="https://sandbox.pactas.com/selfService/iterojs"></script>
     <script type="text/javascript" src="lib/angular.min.js"></script>
     <script type="text/javascript" src="lib/angular-ui-modal.js"></script>
     <script type="text/javascript" src="itero-sample.js"></script>
