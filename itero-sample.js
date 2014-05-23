@@ -14,7 +14,7 @@ var SignupController = function ($scope, $http, $modal) {
     var self = this;
     $scope.order = null;
     // Some default data so we don't have to enter a ton of info every time
-    $scope.customerData = { firstName: "Marcellus", lastName: "Wallace", email: "mw@example.com" };
+    $scope.customerData = { firstName: "Marcellus", lastName: "Wallace", emailAddress: "mw@example.com" };
     $scope.paymentData = { bearer: "CreditCard:Paymill", "cardNumber": "5169147129584558", cardHolder: "Marcellus Wallace", cvc: "911", expiryMonth: "12", expiryYear: "2017" };
     $scope.paymentMethods = {};
     $scope.paymentMethodEnum = [];
@@ -53,7 +53,7 @@ var SignupController = function ($scope, $http, $modal) {
                 // DTO: OrderPost, CustomerDataPost
                 $scope.order = data.Order;
             });
-        });
+        }, function () {});
     };
 
     var modalInstance = null;
@@ -102,6 +102,9 @@ var SignupController = function ($scope, $http, $modal) {
         // REQUIRED. The initial order to be displayed. This will be requested immediately upon load
         publicApiKey: "537229dd1d8dd00ec89960ac",
 
+        // REQUIRED. After payment user will be redirected to this URL.
+        providerReturnUrl : "http://www.pactas.com",
+
         // OPTIONAL. Overwrite the handling of the 3d-secure iframes. Comment out these 
         // two lines to see what happens without (essentially the same, but not customizable).
         // Only applies to paymill. You might want to read paymill's documentation on the subject.
@@ -123,7 +126,7 @@ var SignupController = function ($scope, $http, $modal) {
     });
 
     var initialCart = { planVariantId: "537dbf9a1d8dd00234ad33d2",
-                        componentSubscriptions: [{ componentId: "537dc1911d8dd00234ad33f7", quantity: 2}] };
+                        componentSubscriptions: [{ componentId: "537dc1911d8dd00234ad33f7", quantity: 1}] };
     self.iteroInstance = new IteroJS.Signup();
     self.iteroInstance.preview(initialCart, $scope.customerData, function (success) {
         $scope.$apply(function () {
